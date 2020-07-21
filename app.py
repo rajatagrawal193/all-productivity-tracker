@@ -1,8 +1,38 @@
 import os
-
-import dash
-import dash_core_components as dcc
+import pandas as pd
+import plotly.express as px
+from dash.dependencies import Input, Output
 import dash_html_components as html
+import dash_core_components as dcc
+import dash
+import mysql.connector
+import plotly.graph_objects as go
+
+print('running1')
+mydb = mysql.connector.connect(
+    host="sql12.freemysqlhosting.net",
+    user="sql12356238",
+    password="9DpGYUgdwW",
+    database='sql12356238'
+)
+print("running2 ")
+mycursor = mydb.cursor()
+# mycursor.execute("SHOW TABLES")
+# for item in mycursor:
+#     print(item)
+sql = "SELECT * FROM Sleepdata"
+
+
+# sqlite_select_query = """SELECT * from database_developers"""
+mycursor.execute(sql)
+records = mycursor.fetchall()
+print("Total rows are:  ", len(records))
+print("Printing each row")
+for row in records:
+    print("Id: ", row[0])
+    print("Date: ", row[1])
+    print("sleep_hours: ", row[2])
+    print("\n")
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -24,6 +54,7 @@ app.layout = html.Div([
               [dash.dependencies.Input('dropdown', 'value')])
 def display_value(value):
     return 'You have selected "{}"'.format(value)
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)

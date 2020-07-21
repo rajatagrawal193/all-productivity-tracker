@@ -40,6 +40,13 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 server = app.server
 
+df = pd.DataFrame({
+    "id": [item[0] for item in records],
+    "date": [item[1] for item in records],
+    "sleep_hours": [item[2] for item in records]
+})
+
+fig = px.bar(df, x="date", y="sleep_hours")
 app.layout = html.Div([
     html.H2('Hello World'),
     dcc.Dropdown(
@@ -47,7 +54,11 @@ app.layout = html.Div([
         options=[{'label': i, 'value': i} for i in ['LA', 'NYC', 'MTL']],
         value='LA'
     ),
-    html.Div(id='display-value')
+    html.Div(id='display-value'),
+    dcc.Graph(
+        id='example-graph',
+        figure=fig
+    )
 ])
 
 @app.callback(dash.dependencies.Output('display-value', 'children'),

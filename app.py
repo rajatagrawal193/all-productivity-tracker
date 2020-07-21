@@ -50,14 +50,21 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
 
+# def get_cursor():
+
+#     return mycursor
+
+
 def get_sleep_graph(par):
     mydb = mysql.connector.connect(
         host="sql12.freemysqlhosting.net",
-        user="sql12356238",
-        password="9DpGYUgdwW",
-        database='sql12356238'
+        user="sql12356247",
+        password="Plu8n65DIm",
+        database='sql12356247'
     )
+    # 9DpGYUgdwW
     mycursor = mydb.cursor()
+    # mycursor = get_cursor()
     sql = get_sql(par)
     mycursor.execute(sql)
     records = mycursor.fetchall()
@@ -68,11 +75,17 @@ def get_sleep_graph(par):
     })
 
     fig = px.bar(df, x="date", y="sleep_hours")
+    mycursor.close()
     return fig
 
 
 app.layout = html.Div([
     html.H2('Hello World'),
+    dcc.Input(id="id", type="number", placeholder="13", debounce=True),
+    dcc.Input(id="date", type="number", placeholder="date", debounce=True),
+    dcc.Input(id="sleep_hours", type="number",
+              placeholder="Sleep hours", debounce=True),
+    html.Div(id="output"),
     dcc.Dropdown(
         id='dropdown',
         options=[{'label': i, 'value': i} for i in [5, 6, 20]],
@@ -89,6 +102,29 @@ app.layout = html.Div([
               [dash.dependencies.Input('dropdown', 'value')])
 def display_value(value):
     return get_sleep_graph(value)
+
+
+@app.callback(
+    Output("output", "children"),
+    [Input("id", "value"), Input("date", "value"),
+     Input('sleep_hours', 'value')],
+)
+def update_output(id, date, sleep_hours):
+    if id and date and sleep_hours:
+        print("Entered")
+        sql = " INSERT INTO Sleepdata (id, date, sleep_hours) VALUES (%s, %s, %s)"
+        val = (id, date, sleep_hours)
+        mydb = mysql.connector.connect(
+            host="sql12.freemysqlhosting.net",
+            user="sql12356247",
+            password="Plu8n65DIm",
+            database='sql12356247'
+        )
+        mycursor = mydb.cursor()
+        mycursor.execute(sql, val)
+        mydb.commit()
+        print(mycursor.rowcount, "record inserted.")
+    return u'id {} and  Date {} and Sleep hours {}'.format(id, date, sleep_hours)
 
 
 if __name__ == '__main__':
